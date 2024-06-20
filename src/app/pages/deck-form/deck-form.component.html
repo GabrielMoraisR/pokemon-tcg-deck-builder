@@ -1,0 +1,22 @@
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">{{ isEditMode ? 'Editar Baralho' : 'Criar Novo Baralho' }}</h1>
+    <input type="text" [(ngModel)]="deck.name" placeholder="Nome do Baralho" class="mb-4 p-2 border rounded w-full" />
+
+    <h2 class="text-xl font-semibold mb-2">Adicionar Cartas</h2>
+    <div class="grid grid-cols-3 gap-4">
+        <div *ngFor="let card of cards" class="bg-white p-4 shadow rounded">
+            <h3 class="font-semibold">{{ card.name }}</h3>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded" (click)="addCardToDeck(card)">Adicionar</button>
+        </div>
+    </div>
+
+    <h2 class="text-xl font-semibold mb-2 mt-4">Cartas no Baralho</h2>
+    <div class="grid grid-cols-3 gap-4">
+        <div *ngFor="let card of deck.cards; index as i" class="bg-white p-4 shadow rounded">
+            <h3 class="font-semibold">{{ card.name }}</h3>
+            <button class="bg-red-500 text-white px-4 py-2 rounded" (click)="removeCardFromDeck(i)">Remover</button>
+        </div>
+    </div>
+
+    <button class="bg-green-500 text-white px-4 py-2 rounded mt-4" (click)="saveDeck()">Salvar Baralho</button>
+</div>
