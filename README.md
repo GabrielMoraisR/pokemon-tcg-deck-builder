@@ -61,7 +61,7 @@ Este projeto é um aplicativo web para construção de decks do Pokemon TCG.
 
 - **Clonando o Repositório**:
   ```
-  git clone https://github.com/seu-usuario/pokemon-tcg-deck-builder.git
+  git clone https://github.com/gabrielmoraisr/pokemon-tcg-deck-builder.git
   ```
 - **Instalando Dependências**:
   ```
