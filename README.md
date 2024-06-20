@@ -55,7 +55,6 @@ Este projeto é um aplicativo web para construção de decks do Pokemon TCG.
     - **assets/**
     - **app.module.ts**
     - **app.routes.ts**
-  - **environments/**
 
 ## Instruções para Desenvolvedores
 
