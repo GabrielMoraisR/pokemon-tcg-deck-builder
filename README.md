@@ -1,27 +1,74 @@
-# PokemonTcgDeckBuilder
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.0.4.
+# Pokemon TCG Deck Builder
 
-## Development server
+Este projeto é um aplicativo web para construção de decks do Pokemon TCG.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## Arquitetura
 
-## Code scaffolding
+- **Angular 18**: Utilizado como framework front-end.
+- **Tailwind CSS**: Utilizado para estilização utilizando classes utility.
+- **UI Infragistics**: Integração de componentes de interface gráfica da Infragistics.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Funcionalidades
 
-## Build
+- **Criação de Baralhos**:
+  - Os usuários podem criar novos baralhos inserindo um nome e adicionando cartas.
+  - Restrições de 24 a 60 cartas por baralho.
+  - Máximo de 4 cartas com o mesmo nome por baralho.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- **Lista de Baralhos**:
+  - Exibição de todos os baralhos criados.
+  - Funcionalidades para editar e remover baralhos.
 
-## Running unit tests
+- **Detalhes do Baralho**:
+  - Visualização de detalhes como número de cartas e tipos de cartas.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Rotas
 
-## Running end-to-end tests
+- `/decks`: Lista todos os baralhos criados.
+- `/create-deck`: Formulário para criar um novo baralho.
+- `/edit-deck/:id`: Formulário para editar um baralho existente.
+- `/deck-details/:id`: Detalhes de um baralho específico.
+- Rota padrão: Redireciona para `/decks`.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Ambiente de Desenvolvimento
 
-## Further help
+- **Node.js**: v14.17.0
+- **Angular CLI**: v18.0.0
+- **Instalação de Dependências**:
+  ```
+  npm install
+  ```
+- **Rodando o Projeto**:
+  ```
+  ng serve
+  ```
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+## Estrutura de Pastas
+
+- **src/**
+  - **app/**
+    - **components/**
+    - **pages/**
+    - **services/**
+    - **models/**
+    - **assets/**
+    - **app.module.ts**
+    - **app.routes.ts**
+  - **environments/**
+
+## Instruções para Desenvolvedores
+
+- **Clonando o Repositório**:
+  ```
+  git clone https://github.com/seu-usuario/pokemon-tcg-deck-builder.git
+  ```
+- **Instalando Dependências**:
+  ```
+  cd pokemon-tcg-deck-builder
+  npm install
+  ```
+- **Rodando o Projeto**:
+  ```
+  ng serve
+  ```
