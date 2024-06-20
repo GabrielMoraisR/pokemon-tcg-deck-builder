@@ -1,0 +1,14 @@
+<div class="container mx-auto p-4">
+    <h1 class="text-2xl font-bold mb-4">Meus Baralhos</h1>
+    <button class="bg-blue-500 text-white px-4 py-2 rounded mb-4" [routerLink]="['/create-deck']">Criar Novo
+        Baralho</button>
+    <div *ngFor="let deck of decks; index as i" class="mb-4">
+        <div class="bg-white p-4 shadow rounded">
+            <h2 class="text-xl font-semibold">{{ deck.name }}</h2>
+            <button class="bg-red-500 text-white px-4 py-2 rounded" (click)="removeDeck(i)">Remover</button>
+            <button class="bg-yellow-500 text-white px-4 py-2 rounded" [routerLink]="['/edit-deck', i]">Editar</button>
+            <button class="bg-green-500 text-white px-4 py-2 rounded" [routerLink]="['/deck-details', i]">Ver
+                Detalhes</button>
+        </div>
+    </div>
+</div>
