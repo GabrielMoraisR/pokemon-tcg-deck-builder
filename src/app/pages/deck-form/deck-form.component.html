@@ -1,22 +1,86 @@
 <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">{{ isEditMode ? 'Editar Baralho' : 'Criar Novo Baralho' }}</h1>
-    <input type="text" [(ngModel)]="deck.name" placeholder="Nome do Baralho" class="mb-4 p-2 border rounded w-full" />
+  <h1 class="text-2xl font-bold mb-4">Criar Novo Baralho</h1>
 
-    <h2 class="text-xl font-semibold mb-2">Adicionar Cartas</h2>
-    <div class="grid grid-cols-3 gap-4">
-        <div *ngFor="let card of cards" class="bg-white p-4 shadow rounded">
-            <h3 class="font-semibold">{{ card.name }}</h3>
-            <button class="bg-blue-500 text-white px-4 py-2 rounded" (click)="addCardToDeck(card)">Adicionar</button>
-        </div>
+  <form (ngSubmit)="createDeck()" #deckForm="ngForm">
+    <div class="mb-4">
+      <label for="deckName" class="block mb-2">Nome do Baralho:</label>
+      <input
+        type="text"
+        id="deckName"
+        name="deckName"
+        [(ngModel)]="deckName"
+        class="border rounded p-2 w-full"
+        required
+      />
     </div>
 
-    <h2 class="text-xl font-semibold mb-2 mt-4">Cartas no Baralho</h2>
-    <div class="grid grid-cols-3 gap-4">
-        <div *ngFor="let card of deck.cards; index as i" class="bg-white p-4 shadow rounded">
-            <h3 class="font-semibold">{{ card.name }}</h3>
-            <button class="bg-red-500 text-white px-4 py-2 rounded" (click)="removeCardFromDeck(i)">Remover</button>
-        </div>
+    <div class="mb-4">
+      <label for="selectedCard" class="block mb-2">Nome da Carta:</label>
+      <select
+        id="selectedCard"
+        name="selectedCard"
+        [(ngModel)]="selectedCard"
+        class="border rounded p-2 w-full"
+      >
+        <option *ngFor="let card of allCards" [value]="card.id">
+          {{ card.name }}
+        </option>
+      </select>
+      <button
+        type="button"
+        class="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+        (click)="addCard()"
+      >
+        Adicionar Carta
+      </button>
     </div>
 
-    <button class="bg-green-500 text-white px-4 py-2 rounded mt-4" (click)="saveDeck()">Salvar Baralho</button>
+    <div *ngIf="cards.length > 0" class="mb-4">
+      <h2 class="text-xl font-bold mb-2">Cartas no Baralho:</h2>
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div
+          *ngFor="let card of cards"
+          class="card-container border p-2 rounded shadow-lg"
+        >
+          <img
+            [src]="card.images.small"
+            alt="{{ card.name }}"
+            class="w-full h-auto rounded-t-lg"
+          />
+          <div class="p-2">
+            <p><strong>SuperType:</strong> {{ card.supertype }}</p>
+            <p>
+              <strong>Tipos:</strong>
+              {{ card.types?.join(", ") || "Nenhum tipo especificado" }}
+            </p>
+            <p class="text-sm text-gray-600">{{ card.types?.join(", ") }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex space-x-4">
+      <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
+        Salvar Baralho
+      </button>
+      <button
+        type="button"
+        class="bg-gray-500 text-white px-4 py-2 rounded"
+        (click)="clearForm()"
+      >
+        Limpar Formulário
+      </button>
+    </div>
+  </form>
 </div>
+
+<style>
+  .card-container {
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .card-container:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+</style>
