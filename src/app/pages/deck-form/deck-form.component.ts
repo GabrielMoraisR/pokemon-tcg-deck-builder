@@ -49,7 +49,7 @@ export class DeckFormComponent implements OnInit {
   createDeck() {
     if (
       this.deckName.trim() !== '' &&
-      this.cards.length >= 24 &&
+      this.cards.length >= 2 &&
       this.cards.length <= 60
     ) {
       this.deckService.createDeck(this.deckName, this.cards);
