@@ -47,14 +47,14 @@
             alt="{{ card.name }}"
             class="w-full h-auto rounded-t-lg"
           />
-          <div class="p-2">
-            <p><strong>SuperType:</strong> {{ card.supertype }}</p>
-            <p>
+            <div class="p-2">
+            <h3 class="text-xl font-bold">Nome: {{ card.name }}</h3>
+            <p class="mb-2"><strong>Super Type:</strong> {{ card.supertype }}</p>
+            <p class="mb-2">
               <strong>Tipos:</strong>
               {{ card.types?.join(", ") || "Nenhum tipo especificado" }}
             </p>
-            <p class="text-sm text-gray-600">{{ card.types?.join(", ") }}</p>
-          </div>
+            </div>
         </div>
       </div>
     </div>
