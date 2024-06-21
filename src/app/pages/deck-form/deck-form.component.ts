@@ -27,7 +27,6 @@ export class DeckFormComponent implements OnInit {
   ngOnInit() {
     this.pokemonTcgService.getCards().subscribe(
       (data) => {
-        console.log('Cards data:', data);
         this.allCards = data.data;
       },
       (error) => {
