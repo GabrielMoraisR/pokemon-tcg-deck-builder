@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class PokemonTcgService {
-  private apiUrl = 'https://api.pokemontcg.io/v1/cards';
+  private apiUrl = 'https://api.pokemontcg.io/v2/cards';
 
   constructor(private http: HttpClient) {}
 
