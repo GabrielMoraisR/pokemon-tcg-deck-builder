@@ -1,8 +1,8 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { DeckService } from '../../services/deck.service';
 import { Deck } from '../../models/card.model';
+import { DeckService } from '../../services/deck.service';
 
 @Component({
   selector: 'app-deck-list',
@@ -21,7 +21,7 @@ export class DeckListComponent implements OnInit {
   }
 
   removeDeck(index: number): void {
-    this.deckService.removeDeck(index);
+    this.deckService.deleteDeck(index);
     this.decks = this.deckService.getDecks();
   }
 }
