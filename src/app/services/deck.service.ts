@@ -7,6 +7,8 @@ export interface DeckServiceInterface {
   getDeckByName(name: string): any;
   getDecks(): { id: number; name: string; cards: any[] }[];
   deleteDeck(id: number): void;
+  getDeckById(id: number): any;
+  updateDeck(id: number, name: string, cards: any[]): void;
 }
 
 @Injectable({
@@ -53,5 +55,17 @@ export class DeckService implements DeckServiceInterface {
 
   deleteDeck(id: number): void {
     this.decks = this.decks.filter((deck) => deck.id !== id);
+  }
+
+  getDeckById(id: number): any {
+    return this.decks.find((deck) => deck.id === id);
+  }
+
+  updateDeck(id: number, name: string, cards: any[]): void {
+    const deck = this.getDeckById(id);
+    if (deck) {
+      deck.name = name;
+      deck.cards = cards;
+    }
   }
 }
