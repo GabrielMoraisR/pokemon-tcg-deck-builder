@@ -23,7 +23,7 @@
     <div *ngIf="cards.length > 0" class="mb-4">
       <h2 class="text-xl font-bold mb-2">Cartas no Baralho:</h2>
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div *ngFor="let card of cards" class="card-container border p-2 rounded shadow-lg">
+        <div *ngFor="let card of cards" class="card-container border p-2 rounded shadow-lg relative">
           <img [src]="card.images.small" alt="{{ card.name }}" class="w-full h-auto rounded-t-lg" />
           <div class="p-2">
             <h3>Nome: {{ card.name }}</h3>
@@ -33,6 +33,10 @@
               {{ card.types?.join(", ") || "Nenhum tipo especificado" }}
             </p>
           </div>
+          <button type="button" class="absolute top-0 right-0 bg-red-500 text-white px-2 py-1 rounded"
+            (click)="removeCard(card.id)">
+            X
+          </button>
         </div>
       </div>
     </div>

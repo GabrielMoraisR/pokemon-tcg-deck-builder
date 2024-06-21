@@ -68,10 +68,14 @@ export class DeckFormComponent implements OnInit {
     }
   }
 
+  removeCard(cardId: string) {
+    this.cards = this.cards.filter((card) => card.id !== cardId);
+  }
+
   saveDeck() {
     if (
       this.deckName.trim() !== '' &&
-      this.cards.length >=1 &&
+      this.cards.length >= 24 &&
       this.cards.length <= 60
     ) {
       if (this.isEditRoute && this.deckId !== null) {
