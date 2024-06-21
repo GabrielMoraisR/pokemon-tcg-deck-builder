@@ -9,7 +9,6 @@ import { DeckService } from '../../services/deck.service';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './deck-details.component.html',
-  styleUrls: ['./deck-details.component.css']
 })
 export class DeckDetailsComponent implements OnInit {
   deck: Deck | undefined;

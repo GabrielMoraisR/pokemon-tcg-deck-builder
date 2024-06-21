@@ -8,8 +8,7 @@ import { DeckService } from '../../services/deck.service';
   selector: 'app-deck-list',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './deck-list.component.html',
-  styleUrls: ['./deck-list.component.css']
+  templateUrl: './deck-list.component.html'
 })
 export class DeckListComponent implements OnInit {
   decks: Deck[] = [];
