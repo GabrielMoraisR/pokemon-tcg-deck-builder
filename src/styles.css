@@ -9,6 +9,7 @@
   --color-text-dark: #ffffff;
   --color-border-light: #d1d5db;
   --color-border-dark: #374151;
+  --color-card-bg-dark: #2d3748;
 }
 
 .light {
@@ -21,6 +22,7 @@
   --bg-color: var(--color-bg-dark);
   --text-color: var(--color-text-dark);
   --border-color: var(--color-border-dark);
+  --card-bg-color: var(--color-card-bg-dark);
 }
 
 body {
@@ -33,4 +35,9 @@ input[type="text"] {
   background-color: var(--bg-color);
   color: var(--text-color);
   border-color: var(--border-color);
+}
+
+.card-container {
+  background-color: var(--card-bg-color);
+  color: var(--text-color);
 }
