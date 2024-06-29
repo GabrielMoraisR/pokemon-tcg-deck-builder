@@ -1,3 +1,36 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-bg-light: #ffffff;
+  --color-bg-dark: #1a202c;
+  --color-text-light: #000000;
+  --color-text-dark: #ffffff;
+  --color-border-light: #d1d5db;
+  --color-border-dark: #374151;
+}
+
+.light {
+  --bg-color: var(--color-bg-light);
+  --text-color: var(--color-text-light);
+  --border-color: var(--color-border-light);
+}
+
+.dark {
+  --bg-color: var(--color-bg-dark);
+  --text-color: var(--color-text-dark);
+  --border-color: var(--color-border-dark);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+}
+
+select,
+input[type="text"] {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  border-color: var(--border-color);
+}
