@@ -1,15 +1,14 @@
-import { Component, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterOutlet } from '@angular/router';
 import { ThemeService } from './services/theme.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet],
-  providers: [ThemeService],
+  imports: [RouterOutlet, CommonModule, FormsModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppComponent {
   title = 'pokemon-tcg-deck-builder';
@@ -20,9 +19,5 @@ export class AppComponent {
 
   toggleTheme() {
     this.themeService.toggleTheme();
-  }
-
-  getCurrentTheme() {
-    return this.themeService.getCurrentTheme();
   }
 }
