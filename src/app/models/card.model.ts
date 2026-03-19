@@ -3,6 +3,10 @@ export interface Card {
   name: string;
   supertype: string;
   types: string[];
+  images?: {
+    small: string;
+    large: string;
+  };
 }
 
 export interface Deck {

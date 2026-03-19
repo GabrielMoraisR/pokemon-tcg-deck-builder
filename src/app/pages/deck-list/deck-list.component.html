@@ -1,14 +1,118 @@
-<div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">Meus Baralhos</h1>
-    <button class="bg-blue-500 text-white px-4 py-2 rounded mb-4" [routerLink]="['/create-deck']">Criar Novo
-        Baralho</button>
-    <div *ngFor="let deck of decks; index as i" class="mb-4">
-        <div class=" p-4 shadow rounded">
-            <h2 class="text-xl font-semibold">{{ deck.name }}</h2>
-            <button class="bg-red-500 text-white px-4 py-2 rounded" (click)="removeDeck(i)">Remover</button>
-            <button class="bg-yellow-500 text-white px-4 py-2 rounded ml-2" [routerLink]="['/edit-deck', deck.id]">Editar</button>
-            <button class="bg-green-500 text-white px-4 py-2 rounded ml-2" [routerLink]="['/deck-details', i]">Ver
-                Detalhes</button>
-        </div>
+<div class="page-enter">
+
+  <!-- Page Header -->
+  <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+    <div>
+      <h1 class="text-3xl font-extrabold gradient-text mb-1">Meus Baralhos</h1>
+      <p class="text-sm" style="color: var(--text-muted)">
+        {{ decks.length === 0 ? 'Nenhum baralho criado ainda' : decks.length + ' baralho' + (decks.length > 1 ? 's' : '') + ' encontrado' + (decks.length > 1 ? 's' : '') }}
+      </p>
     </div>
+    <a routerLink="/create-deck" class="btn-primary">+ Novo Baralho</a>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="decks.length === 0" class="empty-state">
+    <span class="empty-state-icon">⚙️</span>
+    <h2 class="text-2xl font-bold mb-3" style="color: var(--text-primary)">Nenhum baralho ainda</h2>
+    <p class="mb-8" style="color: var(--text-secondary)">Crie seu primeiro deck e monte a estratégia perfeita!</p>
+    <a routerLink="/create-deck" class="btn-primary text-base px-8 py-3">✨ Criar Primeiro Baralho</a>
+  </div>
+
+  <!-- Deck Grid -->
+  <div *ngIf="decks.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+    <div *ngFor="let deck of decks"
+         class="glass-card deck-list-card p-5 flex flex-col gap-4">
+
+      <!-- Card Preview Fan -->
+      <div class="card-fan-wrapper" *ngIf="getPreviewImages(deck).length > 0">
+        <img
+          *ngFor="let img of getPreviewImages(deck); let fi = index"
+          [src]="img"
+          [alt]="deck.name"
+          class="card-fan-item"
+          [style.left.px]="fi * 22"
+          [style.z-index]="fi"
+          [style.transform]="'rotate(' + (fi * 5 - 10) + 'deg)'"
+        />
+      </div>
+
+      <!-- No images placeholder -->
+      <div *ngIf="getPreviewImages(deck).length === 0"
+           class="flex items-center justify-center rounded-lg"
+           style="height:72px; background:var(--bg-surface); border:1px dashed var(--border-subtle);">
+        <span style="font-size:28px; opacity:0.3">🃏</span>
+      </div>
+
+      <hr class="cosmic-divider" style="margin: 4px 0;" />
+
+      <!-- Deck Info -->
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <h2 class="text-lg font-bold" style="color:var(--text-primary); line-height:1.2">{{ deck.name }}</h2>
+          <div class="flex items-center gap-1 mt-1">
+            <span *ngIf="isValid(deck)"
+                  class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                  style="background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3)">
+              ✓ Válido
+            </span>
+            <span *ngIf="!isValid(deck)"
+                  class="text-xs font-semibold px-2 py-0.5 rounded-full"
+                  style="background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3)">
+              ⚠ Inválido
+            </span>
+          </div>
+        </div>
+        <span class="text-2xl font-black gradient-text-gold" style="line-height:1">{{ deck.cards.length }}</span>
+      </div>
+
+      <!-- Stats Row -->
+      <div class="grid grid-cols-3 gap-2">
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#c084fc">{{ getPokemonCount(deck) }}</span>
+          <span class="stat-chip-label">Pokémon</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#60a5fa">{{ getTrainerCount(deck) }}</span>
+          <span class="stat-chip-label">Trainer</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#4ade80">{{ getDeckTypes(deck).length }}</span>
+          <span class="stat-chip-label">Tipos</span>
+        </div>
+      </div>
+
+      <!-- Type Badges -->
+      <div class="flex flex-wrap gap-1" *ngIf="getDeckTypes(deck).length > 0">
+        <span *ngFor="let type of getDeckTypes(deck)"
+              [class]="'type-badge type-' + type.toLowerCase()">
+          {{ type }}
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2 mt-auto pt-2" style="border-top:1px solid var(--border-subtle)">
+        <a [routerLink]="['/deck-details', deck.id]" class="btn-ghost text-xs flex-1 justify-center" style="text-align:center">
+          👁 Detalhes
+        </a>
+        <a [routerLink]="['/edit-deck', deck.id]" class="btn-secondary text-xs flex-1 justify-center" style="text-align:center">
+          ✏️ Editar
+        </a>
+        <button *ngIf="confirmDeleteId !== deck.id"
+                (click)="requestDelete(deck.id)"
+                class="btn-danger text-xs"
+                style="padding:6px 12px">
+          🗑
+        </button>
+        <!-- Confirm Delete -->
+        <div *ngIf="confirmDeleteId === deck.id" class="flex gap-1">
+          <button (click)="removeDeck(deck.id)" class="btn-danger text-xs" style="padding:6px 10px">Sim</button>
+          <button (click)="cancelDelete()" class="btn-secondary text-xs" style="padding:6px 10px">Não</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
 </div>

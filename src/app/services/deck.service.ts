@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 
+const STORAGE_KEY = 'pokemon-tcg-decks';
+
 export interface DeckServiceInterface {
   createDeck(name: string, cards: any[]): void;
   addCardToDeck(deck: any[], card: any): boolean;
@@ -17,15 +19,42 @@ export interface DeckServiceInterface {
 export class DeckService implements DeckServiceInterface {
   private decks: { id: number; name: string; cards: any[] }[] = [];
 
-  constructor() {}
+  constructor() {
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage(): void {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        this.decks = JSON.parse(saved);
+      }
+    } catch {
+      this.decks = [];
+    }
+  }
+
+  private saveToStorage(): void {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.decks));
+    } catch {
+      // silent fail
+    }
+  }
+
+  private getNextId(): number {
+    if (this.decks.length === 0) return 1;
+    return Math.max(...this.decks.map((d) => d.id)) + 1;
+  }
 
   createDeck(name: string, cards: any[]) {
     const newDeck = {
-      id: this.decks.length + 1,
+      id: this.getNextId(),
       name,
       cards,
     };
     this.decks.push(newDeck);
+    this.saveToStorage();
   }
 
   addCardToDeck(deck: any[], card: any): boolean {
@@ -55,6 +84,7 @@ export class DeckService implements DeckServiceInterface {
 
   deleteDeck(id: number): void {
     this.decks = this.decks.filter((deck) => deck.id !== id);
+    this.saveToStorage();
   }
 
   getDeckById(id: number): any {
@@ -66,6 +96,7 @@ export class DeckService implements DeckServiceInterface {
     if (deck) {
       deck.name = name;
       deck.cards = cards;
+      this.saveToStorage();
     }
   }
 }

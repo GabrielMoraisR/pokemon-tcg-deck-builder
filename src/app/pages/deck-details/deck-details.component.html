@@ -1,18 +1,136 @@
-<div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">{{ deck?.name }}</h1>
+<div class="page-enter">
 
-    <h2 class="text-xl font-semibold mb-2">Detalhes do Baralho</h2>
-    <p>Total de Pokémon: {{ getPokemonCount() }}</p>
-    <p>Total de Cartas de Treinador: {{ getTrainerCount() }}</p>
-    <p>Total de Tipos Únicos: {{ getUniqueTypes() }}</p>
+  <!-- Deck not found -->
+  <div *ngIf="!deck" class="empty-state">
+    <span class="empty-state-icon">😢</span>
+    <h2 class="text-2xl font-bold mb-3" style="color:var(--text-primary)">Baralho não encontrado</h2>
+    <p class="mb-6" style="color:var(--text-secondary)">Este baralho pode ter sido removido.</p>
+    <a routerLink="/decks" class="btn-primary">← Voltar para Meus Baralhos</a>
+  </div>
 
-    <h2 class="text-xl font-semibold mb-2 mt-4">Cartas no Baralho</h2>
-    <div class="grid grid-cols-3 gap-4">
-        <div *ngFor="let card of deck?.cards" class="p-4 shadow rounded">
-            <h3 class="font-semibold">{{ card.name }}</h3>
+  <ng-container *ngIf="deck">
+
+    <!-- ── Hero Section ── -->
+    <div class="glass-card p-6 mb-6">
+      <div class="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <div class="flex items-center gap-3 mb-1">
+            <a routerLink="/decks" class="btn-ghost text-xs" style="padding:5px 10px">←</a>
+            <span
+              [class]="isValid ? 'text-xs font-bold px-2 py-0.5 rounded-full' : 'text-xs font-bold px-2 py-0.5 rounded-full'"
+              [style]="isValid
+                ? 'background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3)'
+                : 'background:rgba(239,68,68,0.15);color:#fca5a5;border:1px solid rgba(239,68,68,0.3)'"
+            >
+              {{ isValid ? '✓ Válido' : '⚠ Inválido' }}
+            </span>
+          </div>
+          <h1 class="text-3xl font-extrabold gradient-text">{{ deck.name }}</h1>
+          <div class="flex flex-wrap gap-1 mt-3">
+            <span *ngFor="let type of allTypes"
+                  [class]="'type-badge type-' + type.toLowerCase()">
+              {{ type }}
+            </span>
+          </div>
         </div>
+        <a [routerLink]="['/edit-deck', deck.id]" class="btn-primary">✏️ Editar</a>
+      </div>
+
+      <hr class="cosmic-divider" />
+
+      <!-- Stats -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="stat-chip">
+          <span class="stat-chip-value gradient-text-gold">{{ deck.cards.length }}</span>
+          <span class="stat-chip-label">Total de Cartas</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#c084fc">{{ pokemonCount }}</span>
+          <span class="stat-chip-label">Pokémon</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#60a5fa">{{ trainerCount }}</span>
+          <span class="stat-chip-label">Trainer</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#4ade80">{{ uniqueTypesCount }}</span>
+          <span class="stat-chip-label">Tipos Únicos</span>
+        </div>
+      </div>
+
+      <!-- Deck Progress -->
+      <div class="mt-4">
+        <div class="flex justify-between text-xs mb-1" style="color:var(--text-muted)">
+          <span>Composição do baralho</span>
+          <span>{{ deck.cards.length }}/60</span>
+        </div>
+        <div class="deck-progress-track">
+          <div
+            class="deck-progress-fill"
+            [class]="deck.cards.length < 24 ? 'progress-invalid' : deck.cards.length > 55 ? 'progress-full' : 'progress-valid'"
+            [style.width.%]="(deck.cards.length / 60) * 100"
+          ></div>
+        </div>
+      </div>
     </div>
 
-    <button class="bg-blue-500 text-white px-4 py-2 rounded mt-4" routerLink="/decks">Voltar para Lista de
-        Baralhos</button>
+    <!-- ── Cards by Supertype ── -->
+    <div *ngFor="let group of groupedCards" class="mb-6">
+
+      <!-- Group Header -->
+      <div class="supertype-header mb-4">
+        <span class="text-sm font-bold uppercase tracking-wider"
+              [style.color]="group.supertype === 'Pokémon' ? '#c084fc'
+                            : group.supertype === 'Trainer' ? '#60a5fa'
+                            : group.supertype === 'Energy'  ? '#facc15'
+                            : 'var(--text-secondary)'">
+          {{ group.supertype === 'Pokémon' ? '🐾' : group.supertype === 'Trainer' ? '🎯' : group.supertype === 'Energy' ? '⚡' : '🃏' }}
+          {{ group.supertype }}
+        </span>
+        <span class="text-xs px-2 py-0.5 rounded-full" style="background:var(--bg-surface);color:var(--text-muted)">
+          {{ group.items.length }} único(s)
+        </span>
+        <div class="supertype-line"></div>
+      </div>
+
+      <!-- Cards Grid -->
+      <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
+        <div
+          *ngFor="let item of group.items"
+          class="pokemon-card-item"
+          [title]="item.card.name + ' ×' + item.count"
+        >
+          <img
+            *ngIf="item.card.images?.small"
+            [src]="item.card.images.small"
+            [alt]="item.card.name"
+          />
+          <!-- No image fallback -->
+          <div *ngIf="!item.card.images?.small"
+               class="flex items-center justify-center"
+               style="height:100px;background:var(--bg-surface)">
+            <span style="font-size:32px">🃏</span>
+          </div>
+          <!-- Count badge -->
+          <span class="count-badge" [class.max]="item.count >= 4">×{{ item.count }}</span>
+          <!-- Card info on hover -->
+          <div class="p-2">
+            <p class="text-xs font-semibold truncate" style="color:var(--text-primary)">{{ item.card.name }}</p>
+            <div class="flex flex-wrap gap-0.5 mt-1">
+              <span *ngFor="let t of (item.card.types || [])"
+                    [class]="'type-badge type-' + t.toLowerCase()"
+                    style="font-size:9px; padding:1px 5px">{{ t }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Back Button ── -->
+    <div class="flex justify-center mt-8">
+      <a routerLink="/decks" class="btn-secondary">← Voltar para Meus Baralhos</a>
+    </div>
+
+  </ng-container>
+
 </div>

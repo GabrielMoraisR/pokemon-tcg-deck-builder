@@ -1,85 +1,227 @@
-<div class="container mx-auto p-4">
-  <h1 class="text-2xl font-bold mb-4">
-    {{ isEditRoute ? "Editar Baralho" : "Criar Novo Baralho" }}
-  </h1>
+<div class="page-enter">
 
-  <form (ngSubmit)="saveDeck()" #deckForm="ngForm">
-    <div class="mb-4">
-      <label for="deckName" class="block mb-2">Nome do Baralho:</label>
-      <input type="text" id="deckName" name="deckName" [(ngModel)]="deckName" class="border rounded p-2 w-full" required
-        [disabled]="isDeckNameDisabled" />
+  <!-- ── Page Header ── -->
+  <div class="flex items-center gap-4 mb-6 flex-wrap">
+    <a routerLink="/decks" class="btn-ghost text-sm" style="padding:7px 12px">← Voltar</a>
+    <div>
+      <h1 class="text-2xl font-extrabold gradient-text">
+        {{ isEditRoute ? '✏️ Editar Baralho' : '✨ Criar Novo Baralho' }}
+      </h1>
+      <p class="text-xs mt-0.5" style="color:var(--text-muted)">
+        {{ isEditRoute ? 'Modifique as cartas do seu baralho' : 'Monte sua estratégia com 24 a 60 cartas' }}
+      </p>
     </div>
+  </div>
 
-    <div class="mb-4">
-      <label for="selectedCard" class="block mb-2">Nome da Carta:</label>
-      <div class="relative">
-        <button type="button" class="border rounded p-2 w-full bg-white dark:bg-gray-800 dark:text-white"
-          (click)="toggleDropdown()">
-          {{ selectedCardName || 'Selecione uma carta' }}
+  <!-- ── Deck Name ── -->
+  <div class="glass-card p-4 mb-5">
+    <label class="text-xs font-semibold uppercase tracking-wider mb-2 block" style="color:var(--text-muted)">
+      Nome do Baralho
+    </label>
+    <input
+      type="text"
+      [(ngModel)]="deckName"
+      [disabled]="isDeckNameDisabled"
+      placeholder="Ex: Blastoise Controle, Charizard Aggro..."
+      class="input-field text-base font-semibold"
+      style="font-size:16px"
+    />
+  </div>
+
+  <!-- ── Two-Panel Layout ── -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+    <!-- ════ LEFT: Card Browser ════ -->
+    <div class="glass-card p-4 flex flex-col gap-4" style="min-height:600px">
+
+      <!-- Panel Header -->
+      <div class="flex items-center justify-between">
+        <h2 class="font-bold text-base" style="color:var(--text-primary)">🔍 Buscador de Cartas</h2>
+        <span class="text-xs" style="color:var(--text-muted)">
+          {{ isLoading ? 'Carregando...' : filteredCards.length + ' carta(s)' }}
+        </span>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="Buscar por nome ou tipo..."
+          class="input-field"
+        />
+      </div>
+
+      <!-- Type Filters -->
+      <div class="flex flex-wrap gap-1" *ngIf="!isLoading && availableTypes.length > 0">
+        <button
+          (click)="activeTypeFilter = 'all'"
+          [class]="activeTypeFilter === 'all' ? 'btn-primary text-xs' : 'btn-ghost text-xs'"
+          style="padding:4px 10px; font-size:11px">
+          Todos
         </button>
-        <div *ngIf="dropdownOpen"
-          class="absolute z-10 mt-2 w-full bg-white dark:bg-gray-800 border rounded shadow-lg max-h-60 overflow-auto">
-          <div *ngFor="let card of allCards"
-            class="flex items-center p-2 hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
-            (click)="selectCard(card)">
-            <img [src]="card.images.small" alt="{{ card.name }}" class="w-10 h-10 mr-2" />
-            <div>
-              <p>{{ card.name }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ card.types?.length ? '(' + card.types.join(', ') +
-                ')' : '' }}</p>
-            </div>
+        <button
+          *ngFor="let type of availableTypes"
+          (click)="activeTypeFilter = type.toLowerCase()"
+          [class]="activeTypeFilter === type.toLowerCase() ? 'btn-primary text-xs' : 'btn-ghost text-xs'"
+          style="padding:4px 10px; font-size:11px">
+          {{ type }}
+        </button>
+      </div>
+
+      <!-- Loading Skeletons -->
+      <div *ngIf="isLoading" class="grid grid-cols-3 gap-3">
+        <div *ngFor="let s of [1,2,3,4,5,6,7,8,9]">
+          <div class="skeleton" style="height:120px; border-radius:10px;"></div>
+        </div>
+      </div>
+
+      <!-- Load Error -->
+      <div *ngIf="loadError && !isLoading" class="empty-state" style="padding:40px 20px">
+        <span style="font-size:48px">⚠️</span>
+        <p class="mt-3" style="color:var(--text-secondary)">Erro ao carregar cartas da API</p>
+      </div>
+
+      <!-- No Results -->
+      <div *ngIf="!isLoading && !loadError && filteredCards.length === 0" class="empty-state" style="padding:40px 20px">
+        <span style="font-size:48px">🔎</span>
+        <p class="mt-3" style="color:var(--text-secondary)">Nenhuma carta encontrada</p>
+      </div>
+
+      <!-- Card Grid (click to add) -->
+      <div *ngIf="!isLoading && filteredCards.length > 0"
+           class="grid grid-cols-3 gap-2 scroll-panel"
+           style="overflow-y:auto; max-height:460px; padding-right:4px">
+        <div
+          *ngFor="let card of filteredCards"
+          (click)="!isAtLimit(card) && addCardFromBrowser(card)"
+          [class]="'browser-card' + (isAtLimit(card) ? ' at-limit' : '')"
+          [title]="isAtLimit(card) ? 'Limite de 4 cópias atingido' : 'Clique para adicionar: ' + card.name"
+        >
+          <img [src]="card.images?.small" [alt]="card.name" />
+          <!-- Count indicator -->
+          <span *ngIf="getCardCount(card.name) > 0"
+                [class]="'count-badge' + (isAtLimit(card) ? ' max' : '')">
+            ×{{ getCardCount(card.name) }}/4
+          </span>
+          <!-- Hover add button -->
+          <div *ngIf="!isAtLimit(card)"
+               style="position:absolute;inset:0;background:rgba(139,92,246,0.15);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s"
+               class="add-overlay">
+            <span style="font-size:28px;line-height:1;text-shadow:0 2px 8px rgba(0,0,0,0.8)">＋</span>
           </div>
         </div>
       </div>
-      <button type="button" class="bg-blue-500 text-white px-4 py-2 rounded mt-2" (click)="addCard()">
-        Adicionar Carta
-      </button>
+
     </div>
 
-    <div *ngIf="cards.length > 0">
-      <h2 class="text-xl font-semibold mb-2">Detalhes do Baralho</h2>
-      <div class="mb-4 p-4 rounded">
-        <p class="text-lg">
-          <strong>Total de Pokémon:</strong> {{ pokemonCount }}
-        </p>
-        <p class="text-lg">
-          <strong>Total de Cartas de Treinador:</strong> {{ trainerCount }}
-        </p>
-        <p class="text-lg">
-          <strong>Total de Tipos Únicos:</strong> {{ uniqueTypes }}
+    <!-- ════ RIGHT: Deck Builder ════ -->
+    <div class="glass-card p-4 flex flex-col gap-4" style="min-height:600px">
+
+      <!-- Panel Header + Progress -->
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="font-bold text-base" style="color:var(--text-primary)">🃏 Seu Baralho</h2>
+          <span class="text-sm font-bold"
+                [style.color]="cards.length < 24 ? '#f87171' : cards.length > 55 ? '#fbbf24' : '#4ade80'">
+            {{ cards.length }}/60
+          </span>
+        </div>
+        <div class="deck-progress-track">
+          <div class="deck-progress-fill"
+               [class]="progressClass"
+               [style.width.%]="deckProgress">
+          </div>
+        </div>
+        <p class="text-xs mt-1" style="color:var(--text-muted)">
+          <span *ngIf="cards.length < 24">Adicione {{ 24 - cards.length }} carta(s) para atingir o mínimo</span>
+          <span *ngIf="cards.length >= 24 && cards.length <= 60">✓ Baralho válido</span>
+          <span *ngIf="cards.length > 60">⚠ Máximo de 60 cartas excedido</span>
         </p>
       </div>
-    </div>
 
-    <div *ngIf="cards.length > 0" class="mb-4">
-      <h2 class="text-xl font-bold mb-2">Cartas no Baralho:</h2>
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        <div *ngFor="let card of cards"
-          class="card-container border p-2 rounded shadow-lg relative transition-transform duration-200 hover:transform hover:translate-y-[-5px] hover:shadow-lg">
-          <img [src]="card.images.small" alt="{{ card.name }}" class="w-full h-auto rounded-t-lg" />
-          <div class="p-2">
-            <h3>Nome: {{ card.name }}</h3>
-            <p><strong>SuperType:</strong> {{ card.supertype }}</p>
-            <p>
-              <strong>Tipos:</strong>
-              {{ card.types?.join(", ") || "Nenhum tipo especificado" }}
-            </p>
-          </div>
-          <button type="button" class="absolute top-0 right-0 bg-red-500 text-white px-2 py-1 rounded"
-            (click)="removeCard(card.id)">
-            X
-          </button>
+      <!-- Stats Row -->
+      <div class="grid grid-cols-3 gap-2">
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#c084fc">{{ pokemonCount }}</span>
+          <span class="stat-chip-label">Pokémon</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#60a5fa">{{ trainerCount }}</span>
+          <span class="stat-chip-label">Trainer</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-chip-value" style="color:#4ade80">{{ uniqueTypes }}</span>
+          <span class="stat-chip-label">Tipos</span>
         </div>
       </div>
-    </div>
 
-    <div class="flex space-x-4">
-      <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
-        Salvar Baralho
-      </button>
-      <button type="button" class="bg-gray-500 text-white px-4 py-2 rounded" (click)="clearForm()">
-        Limpar Formulário
-      </button>
+      <!-- Empty deck state -->
+      <div *ngIf="cards.length === 0"
+           class="flex-1 flex flex-col items-center justify-center"
+           style="color:var(--text-muted)">
+        <span style="font-size:52px; opacity:0.3; animation: float 3s ease-in-out infinite; display:block">🃏</span>
+        <p class="text-sm mt-3 text-center">Clique nas cartas ao lado para adicioná-las ao baralho</p>
+      </div>
+
+      <!-- Deck Cards Grid -->
+      <div *ngIf="cards.length > 0"
+           class="grid grid-cols-3 gap-2 scroll-panel flex-1"
+           style="overflow-y:auto; max-height:380px; padding-right:4px">
+        <div
+          *ngFor="let item of groupedDeckCards"
+          class="pokemon-card-item"
+        >
+          <img [src]="item.card.images?.small" [alt]="item.name" />
+          <!-- Count badge -->
+          <span class="count-badge" [class.max]="item.count >= 4">
+            ×{{ item.count }}
+          </span>
+          <!-- Remove button -->
+          <button
+            class="remove-card-btn"
+            type="button"
+            (click)="removeOneCard(item.name)"
+            title="Remover uma cópia"
+          >✕</button>
+          <!-- Remove all on right-click / long press: use secondary button -->
+          <button
+            type="button"
+            *ngIf="item.count > 1"
+            (click)="removeAllOfCard(item.name)"
+            title="Remover todas as cópias"
+            style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,0.75);color:#94a3b8;border:none;border-radius:4px;font-size:9px;padding:2px 5px;cursor:pointer;opacity:0;transition:opacity 0.2s"
+            class="remove-all-btn"
+          >✕all</button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-3 pt-3" style="border-top:1px solid var(--border-subtle)">
+        <button
+          type="button"
+          (click)="saveDeck()"
+          [class]="'btn-success flex-1' + (!deckValid ? ' opacity-50' : '')"
+        >
+          {{ isEditRoute ? '💾 Atualizar' : '✅ Salvar Baralho' }}
+        </button>
+        <button
+          type="button"
+          (click)="clearForm()"
+          class="btn-secondary"
+          style="padding:10px 14px"
+          title="Limpar deck"
+        >🗑</button>
+      </div>
+
     </div>
-  </form>
+  </div>
+
 </div>
+
+<!-- hover overlay hack via CSS -->
+<style>
+  .browser-card:hover .add-overlay { opacity: 1 !important; }
+  .pokemon-card-item:hover .remove-all-btn { opacity: 1 !important; }
+</style>
